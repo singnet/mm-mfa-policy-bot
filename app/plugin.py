@@ -1,6 +1,6 @@
 from mmpy_bot.plugins.base import Plugin
 from mmpy_bot import listen_to, schedule
-from datetime import datetime, time
+from datetime import datetime
 import logging
 
 from app.repository import SqliteUserRepo
@@ -8,17 +8,15 @@ from settings import BotSettings
 
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG if BotSettings.DEBUG else logging.INFO)
 
 
 class MFAPlugin(Plugin):
     def __init__(self):
         super().__init__()
         self.team_id = BotSettings.BOT_TEAM_ID
-        self.check_time = time(hour = BotSettings.CHECK_TIME)
-        self.days_allowed = BotSettings.DAYS_ALLOWED
         self.admin_ids = []
         self.user_repo = SqliteUserRepo()
-        logger.setLevel(logging.DEBUG if BotSettings.DEBUG else logging.INFO)
 
     @listen_to("^start$", direct_only = True)
     def initialize_daily_check(self, message):
@@ -28,15 +26,18 @@ class MFAPlugin(Plugin):
             logger.info(f"User {message.user_id} is not an admin")
             return
 
+        schedule.every().day.at(BotSettings.CHECK_TIME).do(self.run_daily_check)
+
+        # For testing
+        # schedule.every(10).seconds.do(self.run_daily_check)
+
         try:
             self.driver.create_post(
-                message = "Daily check started",
+                message = f"Daily check started, next check will be at {schedule.next_run().time()}",
                 channel_id = message.channel_id,
             )
         except Exception as e:
             logger.error(f"Error sending message while starting daily check: {e}")
-
-        schedule.every(10).seconds.do(self.run_daily_check)
 
     @listen_to("^stop$", direct_only = True)
     def stop_daily_check(self, message):
@@ -104,7 +105,7 @@ class MFAPlugin(Plugin):
 
     def update_admins(self):
         try:
-            system_admins = self.driver.users.get_users(params=f"in_team={self.team_id}&role=system_admin")
+            system_admins = self.driver.users.get_users(params=f"role=system_admin")
             self.admin_ids = [admin["id"] for admin in system_admins]
         except Exception as e:
             logger.error(f"Error getting system admins: {e}")

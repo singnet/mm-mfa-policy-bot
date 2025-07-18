@@ -7,6 +7,7 @@ from settings import BotSettings
 
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG if BotSettings.DEBUG else logging.INFO)
 
 
 @dataclass
@@ -46,7 +47,6 @@ class UserRepo:
 class SqliteUserRepo(UserRepo):
     def __init__(self):
         self.db_path = BotSettings.DB_PATH
-        logger.setLevel(logging.DEBUG if BotSettings.DEBUG else logging.INFO)
         super().__init__()
 
     def create_tables(self):
