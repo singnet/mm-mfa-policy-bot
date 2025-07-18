@@ -1,0 +1,8 @@
+[project]
+name = "mm-mfa-policy-bot"
+version = "1.0.0"
+description = "Mattermost Bot for checking MFA"
+requires-python = ">=3.10"
+dependencies = [
+    "mmpy_bot==2.2.1"
+]
