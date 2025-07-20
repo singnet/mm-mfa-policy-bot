@@ -9,9 +9,9 @@
 ## Installation
 
 ```bash
-git clone git@github.com:Arondondon/mm-mfa-policy-bot.git
+git clone https://github.com/Arondondon/mm-mfa-policy-bot.git
 cd mm-mfa-policy-bot
-pip install
+pip install -r requirements.txt
 ```
 
 ## Running

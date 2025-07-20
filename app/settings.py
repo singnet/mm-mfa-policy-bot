@@ -19,9 +19,6 @@ class BotSettings:
     BOT_TEAM_ID = "" # id of the team (already created) in which the bot will work
     SSL_VERIFY = False
     DAYS_ALLOWED = 7 # number of days to enable MFA
-    CHECK_TIME = 8 # int value 0-23 time (hours) (UTC) when the check is started daily
-    DB_PATH = "" # absolute path to sqlite db file, e.g. "/path/to/mfa_bot_db.db"
-    DEBUG = False # debug mode for logging
     CHECK_TIME = "08:00" # str value (HH:MM(:SS) format) of time (local for bot) when the check is started daily
     MFA_MESSAGE = mfa_message
     FINAL_MFA_MESSAGE = final_message

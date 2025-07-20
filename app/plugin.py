@@ -3,7 +3,7 @@ from mmpy_bot import listen_to, schedule
 from datetime import datetime
 import logging
 
-from app.repository import SqliteUserRepo
+from repository import SqliteUserRepo
 from settings import BotSettings
 
 
