@@ -14,7 +14,7 @@ logger.setLevel(logging.DEBUG if BotSettings.DEBUG else logging.INFO)
 class MFAPlugin(Plugin):
     def __init__(self):
         super().__init__()
-        self.team_id = ""
+        self.team_ids = []
         self.admin_ids = []
         self.user_repo = SqliteUserRepo()
 
@@ -26,10 +26,10 @@ class MFAPlugin(Plugin):
             logger.info(f"User {message.user_id} is not an admin")
             return
 
-        schedule.every().day.at(BotSettings.CHECK_TIME).do(self.run_daily_check)
+        # schedule.every().day.at(BotSettings.CHECK_TIME).do(self.run_daily_check)
 
         # For testing
-        # schedule.every(10).seconds.do(self.run_daily_check)
+        schedule.every(10).seconds.do(self.run_daily_check)
 
         try:
             self.driver.create_post(
@@ -112,13 +112,18 @@ class MFAPlugin(Plugin):
         logger.debug(f"Admins: {self.admin_ids}")
 
     def sync_users(self):
-        if not self.team_id:
-            self.update_team_id()
-        new_users_data = self.driver.users.get_users(params={"in_team": self.team_id})
+        if not self.team_ids:
+            self.update_team_ids()
+        new_users_data = []
+        for team_id in self.team_ids:
+            new_users_data += self.driver.users.get_users(params={"in_team": team_id})
         active_users_ids = []
         last_check_datetime = datetime.now().isoformat()
 
         for user in new_users_data:
+            if user["id"] in active_users_ids:
+                logger.debug(f"User {user} already processed, skipping")
+                continue
             logger.debug(f"Processing user {user}")
             active_users_ids.append(user["id"])
             self.user_repo.upsert_user(
@@ -154,10 +159,11 @@ class MFAPlugin(Plugin):
                 logger.error(f"Error creating DM with user {user.user_id}: {e}")
                 continue
 
-    def update_team_id(self):
-        try:
-            result_team = self.driver.teams.get_team_by_name(name = BotSettings.BOT_TEAM_NAME)
-            self.team_id = result_team["id"]
-        except Exception as e:
-            logger.error(f"Error getting team ID: {e}")
-        logger.info(f"Team ID: {self.team_id}")
+    def update_team_ids(self):
+        for team_name in BotSettings.BOT_TEAM_NAMES:
+            try:
+                result_team = self.driver.teams.get_team_by_name(name = team_name)
+                self.team_ids.append(result_team["id"])
+            except Exception as e:
+                logger.error(f"Error getting team ID for team {team_name}: {e}")
+            logger.info(f"Team ID: {self.team_ids} for team {team_name}")

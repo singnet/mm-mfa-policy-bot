@@ -99,19 +99,20 @@ class SqliteUserRepo(UserRepo):
             VALUES (?, ?, ?, ?)
             ON CONFLICT (user_id)
             DO UPDATE SET 
-            mfa_active = EXCLUDED.mfa_active,
             days_left = CASE 
-                           WHEN mfa_active = 0 AND days_left > 0 
-                           THEN days_left - 1 
+                           WHEN mfa_active = 1 AND EXCLUDED.mfa_active = 0 THEN ?
+                           WHEN mfa_active = 0 AND EXCLUDED.mfa_active = 0 AND days_left > 0 THEN days_left - 1 
                            ELSE days_left 
-                        END,
+                        END, 
+            mfa_active = EXCLUDED.mfa_active, 
             last_check_datetime = EXCLUDED.last_check_datetime;
             '''
             cursor.execute(query, (
                 user_id,
                 username,
                 mfa_active,
-                last_check_datetime
+                last_check_datetime,
+                BotSettings.DAYS_ALLOWED
             ))
             db.commit()
 

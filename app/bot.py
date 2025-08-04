@@ -7,7 +7,6 @@ bot = Bot(
         MATTERMOST_URL = BotSettings.MATTERMOST_URL,
         MATTERMOST_PORT = BotSettings.MATTERMOST_PORT,
         BOT_TOKEN = BotSettings.BOT_TOKEN,
-        BOT_TEAM = BotSettings.BOT_TEAM_NAME,
         SSL_VERIFY = BotSettings.SSL_VERIFY,
         DEBUG = BotSettings.DEBUG
     ),
