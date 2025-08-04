@@ -44,8 +44,8 @@ The bot supports the following commands:
 
 In test, you can run the bot like above or in the background
 
-```bash
-nohup python mfa_bot.py > bot.log 2>&1 &
+```bash 
+nohup python3 app/bot.py > bot.log 2>&1 & # in "mm-mfa-policy-bot" directory
 ```
 
 and stop it with 
