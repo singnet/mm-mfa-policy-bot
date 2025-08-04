@@ -16,7 +16,6 @@ class BotSettings:
     MATTERMOST_PORT = 443
     BOT_TOKEN = "" # bot token for authorization
     BOT_TEAM_NAME = "" # name of the team (already created) in which the bot will work
-    BOT_TEAM_ID = "" # id of the team (already created) in which the bot will work
     SSL_VERIFY = False
     DAYS_ALLOWED = 7 # number of days to enable MFA
     CHECK_TIME = "08:00" # str value (HH:MM(:SS) format) of time (local for bot) when the check is started daily

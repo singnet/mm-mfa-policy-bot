@@ -14,7 +14,7 @@ logger.setLevel(logging.DEBUG if BotSettings.DEBUG else logging.INFO)
 class MFAPlugin(Plugin):
     def __init__(self):
         super().__init__()
-        self.team_id = BotSettings.BOT_TEAM_ID
+        self.team_id = ""
         self.admin_ids = []
         self.user_repo = SqliteUserRepo()
 
@@ -82,7 +82,7 @@ class MFAPlugin(Plugin):
             logger.error(f"Error sending report: {e}")
 
     @listen_to("^reset$", direct_only = True)
-    def send_help_to_admin(self, message):
+    def reset_days_left(self, message):
         self.update_admins()
 
         if message.user_id not in self.admin_ids:
@@ -105,14 +105,16 @@ class MFAPlugin(Plugin):
 
     def update_admins(self):
         try:
-            system_admins = self.driver.users.get_users(params=f"role=system_admin")
+            system_admins = self.driver.users.get_users(params={"role": "system_admin"})
             self.admin_ids = [admin["id"] for admin in system_admins]
         except Exception as e:
             logger.error(f"Error getting system admins: {e}")
         logger.debug(f"Admins: {self.admin_ids}")
 
     def sync_users(self):
-        new_users_data = self.driver.users.get_users(params=f"in_team={self.team_id}")
+        if not self.team_id:
+            self.update_team_id()
+        new_users_data = self.driver.users.get_users(params={"in_team": self.team_id})
         active_users_ids = []
         last_check_datetime = datetime.now().isoformat()
 
@@ -152,4 +154,10 @@ class MFAPlugin(Plugin):
                 logger.error(f"Error creating DM with user {user.user_id}: {e}")
                 continue
 
-
+    def update_team_id(self):
+        try:
+            result_team = self.driver.teams.get_team_by_name(name = BotSettings.BOT_TEAM_NAME)
+            self.team_id = result_team["id"]
+        except Exception as e:
+            logger.error(f"Error getting team ID: {e}")
+        logger.info(f"Team ID: {self.team_id}")
