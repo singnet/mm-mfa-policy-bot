@@ -9,7 +9,7 @@
 ## Installation
 
 ```bash
-git clone https://github.com/Arondondon/mm-mfa-policy-bot.git
+git clone https://github.com/singnet/mm-mfa-policy-bot.git
 cd mm-mfa-policy-bot
 pip install -r requirements.txt
 ```
@@ -44,15 +44,24 @@ The bot supports the following commands:
 
 In test, you can run the bot like above or in the background
 
-```bash 
+```bash
 nohup python3 app/bot.py > bot.log 2>&1 & # in "mm-mfa-policy-bot" directory
 ```
 
-and stop it with 
+and stop it with
 
 ```bash
 ps aux | grep bot.py
 kill <PID>
 ```
+## Lounch As a Service
 
 In production, it is best to configure and run the bot as `systemd service`.
+To do this find `etc/systemd/system/mm-mfa-policy-bot.service` and update it with correct path to your app.
+Copy that file to your systemd directory (for Ubuntu it will be /etc/systemd/system).
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable mm-mfa-policy-bot.service
+sudo systemctl start mm-mfa-policy-bot.service
+```

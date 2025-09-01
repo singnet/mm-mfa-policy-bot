@@ -1,0 +1,17 @@
+[Unit]
+Description=MM MFA Policy Bot
+## make sure we only start the service after network is up
+Wants=network-online.target
+After=network.target
+
+[Service]
+User=ubuntu
+WorkingDirectory=/path/to/bot/mm-mfa-policy-bot/
+ExecStart=/usr/bin/python3 /path/to/bot/mm-mfa-policy-bot/app/bot.py
+Restart=on-failure
+RestartSec=5
+TimeoutStartSec=infinity
+
+
+[Install]
+WantedBy=multi-user.target
