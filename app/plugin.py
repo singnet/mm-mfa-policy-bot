@@ -26,10 +26,10 @@ class MFAPlugin(Plugin):
             logger.info(f"User {message.user_id} is not an admin")
             return
 
-        # schedule.every().day.at(BotSettings.CHECK_TIME).do(self.run_daily_check)
+        schedule.every().day.at(BotSettings.CHECK_TIME).do(self.run_daily_check)
 
         # For testing
-        schedule.every(10).seconds.do(self.run_daily_check)
+        # schedule.every(10).seconds.do(self.run_daily_check)
 
         try:
             self.driver.create_post(
@@ -115,8 +115,18 @@ class MFAPlugin(Plugin):
         if not self.team_ids:
             self.update_team_ids()
         new_users_data = []
+        per_page = 1
         for team_id in self.team_ids:
-            new_users_data += self.driver.users.get_users(params={"in_team": team_id})
+            page_number = 0
+            while True:
+                logger.info(f"Fetching users, page {page_number}")
+                new_users_page = self.driver.users.get_users(params={
+                    "in_team": team_id, "active": "true", "page": str(page_number), "per_page": str(per_page)
+                })
+                new_users_data += new_users_page
+                if len(new_users_page) < per_page:
+                    break
+                page_number += 1
         active_users_ids = []
         last_check_datetime = datetime.now().isoformat()
 
